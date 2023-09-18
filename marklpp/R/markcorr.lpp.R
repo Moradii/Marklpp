@@ -9,7 +9,7 @@
 #' @param normalise If normalise=FALSE, compute only the numerator of the expression for the mark correlation.
 #' @param f  Optional. Test function f used in the definition of the mark correlation function. An R function with at least two arguments. There is a sensible default.
 #' @param ftype type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","breisgart"
-#'
+#' @param method type of smoothing, either density or loess.
 #' @examples
 #'  X <- rpoislpp(10,simplenet)
 #'  r <- seq(0,boundingradius(simplenet),length.out=513)
@@ -26,10 +26,18 @@
 
 
 markcorr.lpp <- function(X,r,normalise=TRUE,f = function(m1, m2) {m1 * m2},
-                         ftype=c("corr","vario","rcorr","schlather","equ","breisgart")){
+                         ftype=c("corr","vario","rcorr","schlather","equ","breisgart"),
+                         method=c("density","loess"),
+                         ...){
   n <- npoints(X)
   d <- pairdist.lpp(X)
-  if(missing(r)) stop("r is not given.")
+  if(missing(r)){
+    L <- X$domain
+    rmaxdefault <- 0.98 * boundingradius(L)
+    W <- Window(L)
+    breaks <- handle.r.b.args(r, NULL, W, rmaxdefault = rmaxdefault)
+    r <- breaks$r
+  }
   rmax <- max(r)
   m <- marks(X)
 
@@ -44,8 +52,23 @@ markcorr.lpp <- function(X,r,normalise=TRUE,f = function(m1, m2) {m1 * m2},
   }
 
   dfvario <- data.frame(d=df.filter[,1], ff=(f(m1,m2)))
-  lo <- loess(ff~d,data = dfvario)
-  Eff <- predict(lo, newdata=data.frame(d=r))
+
+  if(method=="density"){
+    Kf <- unnormdensity(dfvario$d, weights = dfvario$ff,
+                        from=min(r), to=max(r), n=length(r),
+                        ...)$y
+    ## smooth estimate of kappa_1
+    K1 <- unnormdensity(dfvario$d, weights=rep(1,nrow(dfvario)),
+                        from=min(r), to=max(r), n=length(r),
+                        ...)$y
+    Eff <- Kf/K1
+  }else if(method=="loess"){
+    lo <- loess(ff~d,data = dfvario,...)
+    Eff <- predict(lo, newdata=data.frame(d=r))
+  }else{
+    stop("method should currently be either loess or density!!!")
+  }
+
 
   if(normalise){
     if(ftype=="corr"){

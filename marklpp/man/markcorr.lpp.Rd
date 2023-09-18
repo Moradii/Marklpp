@@ -11,7 +11,9 @@ markcorr.lpp(
   f = function(m1, m2) {
      m1 * m2
  },
-  ftype = c("corr", "vario", "rcorr", "schlather", "equ", "breisgart")
+  ftype = c("corr", "vario", "rcorr", "schlather", "equ", "breisgart"),
+  method = c("density", "loess"),
+  ...
 )
 }
 \arguments{
@@ -24,6 +26,8 @@ markcorr.lpp(
 \item{f}{Optional. Test function f used in the definition of the mark correlation function. An R function with at least two arguments. There is a sensible default.}
 
 \item{ftype}{type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","breisgart"}
+
+\item{method}{type of smoothing, either density or loess.}
 }
 \value{
 a numeric vector.
