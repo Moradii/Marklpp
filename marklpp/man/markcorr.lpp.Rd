@@ -6,12 +6,12 @@
 \usage{
 markcorr.lpp(
   X,
-  r,
+  r = NULL,
   normalise = TRUE,
   f = function(m1, m2) {
      m1 * m2
  },
-  ftype = c("corr", "vario", "rcorr", "schlather", "equ", "breisgart"),
+  ftype = c("corr", "vario", "rcorr", "schlather", "equ", "Beisbart"),
   method = c("density", "loess"),
   ...
 )
@@ -25,20 +25,20 @@ markcorr.lpp(
 
 \item{f}{Optional. Test function f used in the definition of the mark correlation function. An R function with at least two arguments. There is a sensible default.}
 
-\item{ftype}{type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","breisgart"}
+\item{ftype}{type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","Beisbart"}
 
 \item{method}{type of smoothing, either density or loess.}
 }
 \value{
-a numeric vector.
+a data.frame which gives the empirical mark correlation function and the distance vector r where the mark correlation finction is evaluated.
 }
 \description{
 Mark correlation function for point patterns over a linear network
 }
 \examples{
  X <- rpoislpp(10,simplenet)
- r <- seq(0,boundingradius(simplenet),length.out=513)
- markcorr.lpp(X,r=r,ftype = "equ",f=function(m1,m2){m1==m2})
+ marks(X) <- runif(npoints(X),10,11)
+ markcorr.lpp(X,r=r,ftype = "corr",f=function(m1,m2){m1*m2})
 }
 \references{
 Eckardt, M., and Moradi, M. (2023) Marked point processes on linear networks.

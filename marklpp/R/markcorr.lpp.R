@@ -8,15 +8,15 @@
 #' @param r Optional. Numeric vector. The values of the argument r at which the mark correlation function should be evaluated.
 #' @param normalise If normalise=FALSE, compute only the numerator of the expression for the mark correlation.
 #' @param f  Optional. Test function f used in the definition of the mark correlation function. An R function with at least two arguments. There is a sensible default.
-#' @param ftype type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","breisgart"
+#' @param ftype type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","Beisbart"
 #' @param method type of smoothing, either density or loess.
 #' @examples
 #'  X <- rpoislpp(10,simplenet)
-#'  r <- seq(0,boundingradius(simplenet),length.out=513)
-#'  markcorr.lpp(X,r=r,ftype = "equ",f=function(m1,m2){m1==m2})
+#'  marks(X) <- runif(npoints(X),10,11)
+#'  markcorr.lpp(X,r=r,ftype = "corr",f=function(m1,m2){m1*m2})
 
 #' @references Eckardt, M., and Moradi, M. (2023) Marked point processes on linear networks.
-#' @return a numeric vector.
+#' @return a data.frame which gives the empirical mark correlation function and the distance vector r where the mark correlation finction is evaluated.
 #' @author Mehdi Moradi \email{m2.moradi@yahoo.com} and Matthias Eckardt
 
 
@@ -25,8 +25,8 @@
 #' @export
 
 
-markcorr.lpp <- function(X,r,normalise=TRUE,f = function(m1, m2) {m1 * m2},
-                         ftype=c("corr","vario","rcorr","schlather","equ","breisgart"),
+markcorr.lpp <- function(X,r=NULL,normalise=TRUE,f = function(m1, m2) {m1 * m2},
+                         ftype=c("corr","vario","rcorr","schlather","equ","Beisbart"),
                          method=c("density","loess"),
                          ...){
   n <- npoints(X)
@@ -82,7 +82,7 @@ markcorr.lpp <- function(X,r,normalise=TRUE,f = function(m1, m2) {m1 * m2},
     }else if(ftype=="equ"){
       tb <- table(m)
       out <- Eff/(sum(tb^2)/n^2)
-    }else if(ftype=="breisgart"){
+    }else if(ftype=="Beisbart"){
       out <- Eff/(2*mean(m))
     }
     else{
@@ -91,6 +91,8 @@ markcorr.lpp <- function(X,r,normalise=TRUE,f = function(m1, m2) {m1 * m2},
   }else{
     out <- Eff
   }
+
+  out <- cbind(emp=out, r=r)
   return(out)
 }
 

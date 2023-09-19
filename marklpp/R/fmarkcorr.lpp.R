@@ -8,7 +8,7 @@
 #' @param r Optional. Numeric vector. The values of the argument r at which the mark correlation function should be evaluated.
 #' @param normalise If normalise=FALSE, compute only the numerator of the expression for the mark correlation.
 #' @param f  Optional. Test function f used in the definition of the mark correlation function. An R function with at least two arguments. There is a sensible default.
-#' @param ftype type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","breisgart"
+#' @param ftype type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","Beisbart"
 #' @param method type of smoothing, either density or loess.
 #' @examples
 #' L <- spiders$domain
@@ -19,17 +19,17 @@
 #' plot(Fcor$r,Fcor$gw,type = "l")
 
 #' @references Eckardt, M., Mateu, J., and Moradi, M. (2023) Point processes on linear networks with function-valued marks.
-#' @return a numeric vector.
+#' @return a data.frame which shows mark correlation functions evaluated at each time as well as the overall values.
 #' @author Mehdi Moradi \email{m2.moradi@yahoo.com} and Matthias Eckardt
 
 
 #' @import spatstat.linnet
 #' @import stats
 #' @export
-fmarkcorr.linnet <- function(X,r,
+fmarkcorr.lpp <- function(X,r = NULL,
                              normalise=FALSE,
                              f = function(m1, m2) {m1 * m2},
-                             ftype=c("corr","vario","rcorr","schlather","breisgart"),
+                             ftype=c("corr","vario","rcorr","schlather","Beisbart"),
                              method=c("density","loess"),...
                              ){
   n <- npoints(X)
@@ -103,7 +103,7 @@ fmarkcorr.linnet <- function(X,r,
              res <- res/sigma
            }else if(ftype=="rcorr"){
              res <- res/mu
-           }else if(ftype=="breisgart"){
+           }else if(ftype=="Beisbart"){
              res <- res/mu.twice
            }else if(ftype=="schlather"){
              res <- res/sigma}
@@ -121,5 +121,7 @@ fmarkcorr.linnet <- function(X,r,
   # delta <- do.call(rbind,delta)
 
   FcorInt <-  apply(res, 2, mean)
-  return(list(pw=res, gw=FcorInt, r=r))
+  colnames(res) <- paste("t",seq(1,f.len,1))
+  out <- cbind(res,overall=FcorInt,r=r)
+  return(out)
 }
