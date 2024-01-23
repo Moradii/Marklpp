@@ -172,6 +172,7 @@ points(d_label$r,corrr2$un,type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
 
+INVOLUCRATA <- as.ppp(INVOLUCRATA)
 save.image("INVOLUCRATA.RData")
 
 
@@ -297,7 +298,7 @@ dev.off()
 
 y1.rand <- lapply(y1.rand, as.ppp) #reduce space
 
-
+BIGNONIOIDES <- as.ppp(BIGNONIOIDES)
 save.image("BIGNONIOIDES.RData")
 
 #####################################################
@@ -419,6 +420,7 @@ points(d_label$r,corrr2$un,type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
 
+#reduce spaces
 rm(
   trees,
   trees_lpp,
@@ -431,7 +433,8 @@ rm(
 )
 
 y1.rand <- lapply(y1.rand, as.ppp) #reduce space
-
+rm(Vancouver_linnet)
+AQUIFOLIUM <- as.ppp(AQUIFOLIUM)
 save.image("AQUIFOLIUM.RData")
 
 #####################################################
@@ -564,6 +567,7 @@ rm(
 )
 
 y1.rand <- lapply(y1.rand, as.ppp) #reduce space
+POPULUS <- as.ppp(POPULUS)
 save.image("POPULUS.RData")
 
 #####################################################
@@ -692,6 +696,7 @@ rm(
 )
 
 y1.rand <- lapply(y1.rand, as.ppp) #reduce space
+ARNOLD <- as.ppp(ARNOLD)
 save.image("ARNOLD.RData")
 
 
