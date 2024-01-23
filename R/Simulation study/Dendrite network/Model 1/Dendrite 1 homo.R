@@ -1,10 +1,8 @@
-
 rm(list = ls())
 
 library(marklpp)
 library(parallel)
 library(spatstat)
-library(LinearJ)
 
 ################################################################
 ################################################################
@@ -14,12 +12,8 @@ library(LinearJ)
 nsim <- 199
 y <- runiflpp(100,L=dendrite$domain,nsim = nsim)
 
-distcond <- 80
 for (i in 1:nsim) {
-  pd <- pairdist(y[[i]])
-  marks(y[[i]]) <- unlist(lapply(X=1:npoints(y[[i]]), function(j){
-    sum(pd[,j] < distcond)
-  }))
+  marks(y[[i]]) <- (y[[i]]$data$x+y[[i]]$data$y)/5000
 }
 
 library(circlize)
@@ -35,7 +29,7 @@ cc <- colorRamp2(
   colors=c(1:6)
 )
 
-png("model3.png",height = 1200,width = 1200)
+png("model1.png",height = 1200,width = 1200)
 par(mar=c(0,0,0,0))
 plot(y[[1]],
      main="",
@@ -49,8 +43,6 @@ plot(y[[1]],
      leg.args=list(cex.axis=3,cex=9)
 )
 dev.off()
-
-
 ########################################### Markcorr
 ###############################
 ###############################
@@ -89,32 +81,25 @@ mk_L_for_sims <- do.call(rbind,mk_L_for_sims)
 
 nrank <- 5
 
-mk_2d_for_sims_no_NA <- mk_2d_for_sims
-
-min_2d <- apply(mk_2d_for_sims_no_NA, 2, function(x) (sort(x))[nrank])
-max_2d <- apply(mk_2d_for_sims_no_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+min_2d <- apply(mk_2d_for_sims, 2, function(x) (sort(x))[nrank])
+max_2d <- apply(mk_2d_for_sims, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d <- data.frame(r=r,
                 min=min_2d,max=max_2d)
 
-
-
-mk_L_for_sims_no_NA <- mk_L_for_sims
-
-
-min_L <- apply(mk_L_for_sims_no_NA, 2, function(x) (sort(x))[nrank])
-max_L <- apply(mk_L_for_sims_no_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+min_L <- apply(mk_L_for_sims, 2, function(x) (sort(x))[nrank])
+max_L <- apply(mk_L_for_sims, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_L <- data.frame(r=r_L,min=min_L,max=max_L)
 
 par(mfrow=c(2,2)) ## put two plots together
 
-png("model3corrnet.png",height = 1200,width = 1200)
+png("model1corrnet.png",height = 1200,width = 1200)
 par(mar=c(12,12,1,1))
 plot(d_L$r,d_L$min,
      type = "n",
      ylab="", xlab = "",
-     ylim = c(0,3),
+     ylim = c(0.5,1.5),
      cex.lab=4,
      cex.axis=4, las=3,
      main=""
@@ -127,15 +112,15 @@ points(d_L$r,d_L$min,type="l",col="white")
 points(d_L$r,d_L$max,type="l",col="white")
 polygon(c(d_L$r, rev(d_L$r)), c(d_L$max, rev(d_L$min)),
         col = "grey70", border = NA)
-points(d_L$r,colMeans(mk_L_for_sims_no_NA),type="l",lwd=3)
+points(d_L$r,colMeans(mk_L_for_sims),type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
 
-png("model3corr.png",height = 1200,width = 1200)
+png("model1corr.png",height = 1200,width = 1200)
 par(mar=c(12,12,1,1))
 plot(d$r,d$min,
      type = "n",
-     ylim = c(0,3),
+     ylim = c(0.5,1.5),
      cex.lab=4,
      cex.axis=4,
      main="", xlab="",ylab="",las=3
@@ -148,20 +133,20 @@ points(d$r,d$min,type="l",col="white")
 points(d$r,d$max,type="l",col="white")
 polygon(c(d$r, rev(d$r)), c(d$max, rev(d$min)),
         col = "grey70", border = NA)
-points(d$r,colMeans(mk_2d_for_sims_no_NA),type="l",lwd=3)
+points(d$r,colMeans(mk_2d_for_sims),type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
 
-png("model3corrcompare.png",height = 1200,width = 1200)
+png("model1corrcompare.png",height = 1200,width = 1200)
 par(mar=c(12,12,1,1))
-plot(d$r,colMeans(mk_L_for_sims_no_NA),type="l",
-     ylim = c(0,3),
+plot(d$r,colMeans(mk_L_for_sims),type="l",
+     ylim = c(0.5,1.5),
      xlab = "",
      ylab="",
      main="",
      cex.lab=4,
      cex.axis=4, las=3,lwd=3,xaxt="n")
-points(d$r,colMeans(mk_2d_for_sims_no_NA),type="l",lty=2,lwd=3)
+points(d$r,colMeans(mk_2d_for_sims),type="l",lty=2,lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 legend("topright",lty=c(1,2),lwd=c(2,2),cex=4,
        legend = c(
@@ -169,13 +154,15 @@ legend("topright",lty=c(1,2),lwd=c(2,2),cex=4,
          expression(italic(bar(kappa)[mm](r)))))
 dev.off()
 
-plot(d$r,apply(mk_L_for_sims_no_NA,2,var),type="l",
-     ylim = c(0,.09),
+
+# variance comparison
+plot(d$r,apply(mk_L_for_sims,2,var),type="l",
+     ylim = c(0,.01),
      xlab = "r",
      ylab="",
      main = "variance")
-points(d$r,apply(mk_2d_for_sims_no_NA,2,var),type="l",lty=2)
-legend(x=120,y=0.09,lty=c(1,2),
+points(d$r,apply(mk_2d_for_sims,2,var),type="l",lty=2)
+legend(x=120,y=0.01,lty=c(1,2),
        legend = c("Network","2D"))
 
 
@@ -222,34 +209,26 @@ mk_L_label <- mclapply(X=1:nsim,function(i){
 
 mk_L_label <- do.call(rbind,mk_L_label)
 
-
-mk_2d_label_NA <- mk_2d_label
-
-min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+min_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nrank])
+max_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_label <- data.frame(r=r,
                       min=min_2d_lab,max=max_2d_lab)
 
-
-
-mk_L_label_NA <- mk_L_label
-
-
-min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+min_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nrank])
+max_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
 
 
 par(mfrow=c(1,2)) ## put two plots together
 
-png("model3singlenet.png",height = 1200,width = 1200)
+png("model1singlenet.png",height = 1200,width = 1200)
 par(mar=c(12,12,1,1))
 plot(d_L_label$r,d_L_label$min,
      type = "n",xlab = "",
      ylab="",
-     ylim = c(0,3),
+     ylim = c(0.5,1.5),
      main="",
      cex.lab=4,
      cex.axis=4, las=3
@@ -266,12 +245,12 @@ points(d_L_label$r,mk_L_for_sims[1,],type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
 
-png("model3singleR2.png",height = 1200,width = 1200)
+png("model1singleR2.png",height = 1200,width = 1200)
 par(mar=c(12,12,1,1))
 plot(d_label$r,d_label$min,
      type = "n",xlab = "",
      ylab="",
-     ylim = c(0,3),
+     ylim = c(0.5,1.5),
      main="",
      cex.lab=4,
      cex.axis=4, las=3
@@ -290,5 +269,4 @@ dev.off()
 
 
 
-
-save.image("dendrite3homo.RData")
+save.image("dendrite1homo.RData")
