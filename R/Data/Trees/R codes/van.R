@@ -1,16 +1,14 @@
 rm(list = ls())
-setwd("~/Documents/Research/Journal Papers/Marked point processes on linear networks.lpp/Data/Trees/trees")
-
+setwd("~/Documents")
 
 library(sf)
 library(spatstat)
 library(parallel)
+
 trees <- read_sf("trees.shp")
 
 trees <- st_transform(trees,3348)
-
 trees_ppp <- maptools::as.ppp.SpatialPointsDataFrame(as(trees,"Spatial"))
-
 trees.diam <- unmark(trees_ppp)
 age <- trees_ppp$marks$date_plant
 
@@ -29,7 +27,7 @@ marks(trees.diam) <- data.frame(genus_name=trees_ppp$marks$genus_name,
 
 # plot(unmark(trees.diam),pch=20,cols="red")
 
-setwd("~/Documents/Research/Journal Papers/Marked point processes on linear networks.lpp/Data/Trees")
+setwd("~/Documents")
 load("Vancouver_linnet.RData")
 
 Vancouver_linnet <- connected.linnet(Vancouver_linnet,what = "component")[[1]]
@@ -41,9 +39,9 @@ trees_lpp <- as.lpp(trees.diam,L=Vancouver_linnet)
 
 
 species.ppps <- split(trees_lpp,f="species_name")
-genus.ppps <- split(trees_lpp,f="genus_name")
-cultivar.ppps <- split(trees_lpp,f="cultivar_name")
-common.ppps <- split(trees_lpp,f="common_name")
+# genus.ppps <- split(trees_lpp,f="genus_name")
+# cultivar.ppps <- split(trees_lpp,f="cultivar_name")
+# common.ppps <- split(trees_lpp,f="common_name")
 
 rm(
   trees,
@@ -65,16 +63,6 @@ plot(unmark(species.ppps$PROCERA),pch=20,cols=2)
 ##################################################### INVOLUCRATA
 #####################################################
 #####################################################
-d <- data.frame(name=names(species.ppps),n=unlist(lapply(species.ppps, npoints)))
-rownames(d) <- NULL
-d[order(d$n,decreasing = F),]
-sd <- c()
-for (i in 1:length(species.ppps)) {
-  sd[[i]] <- sd(species.ppps[[i]]$data$diameter)
-}
-d <- cbind(d,unlist(sd))
-d[order(d$`unlist(sd)`,decreasing = F),]
-
 INVOLUCRATA <- species.ppps$INVOLUCRATA
 marks(INVOLUCRATA) <- INVOLUCRATA$data$diameter
 
@@ -122,21 +110,21 @@ mk_L_label <- mclapply(X=1:nsim,function(i){
 mk_L_label <- do.call(rbind,mk_L_label)
 
 
-mk_2d_label_NA <- mk_2d_label
 
-min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+
+min_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nrank])
+max_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_label <- data.frame(r=r,
                       min=min_2d_lab,max=max_2d_lab)
 
 
 
-mk_L_label_NA <- mk_L_label
 
 
-min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+
+min_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nrank])
+max_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
 
@@ -184,35 +172,6 @@ points(d_label$r,corrr2$un,type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
 
-
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-
 save.image("INVOLUCRATA.RData")
 
 
@@ -221,8 +180,6 @@ save.image("INVOLUCRATA.RData")
 ##################################################### BIGNONIOIDES
 #####################################################
 #####################################################
-
-
 BIGNONIOIDES <- species.ppps$BIGNONIOIDES
 marks(BIGNONIOIDES) <- BIGNONIOIDES$data$diameter
 
@@ -278,21 +235,18 @@ mk_L_label <- mclapply(X=1:nsim,function(i){
 mk_L_label <- do.call(rbind,mk_L_label)
 
 
-mk_2d_label_NA <- mk_2d_label
 
-min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+
+min_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nrank])
+max_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_label <- data.frame(r=r,
                       min=min_2d_lab,max=max_2d_lab)
 
 
 
-mk_L_label_NA <- mk_L_label
-
-
-min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+min_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nrank])
+max_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
 
@@ -340,46 +294,6 @@ polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
 points(d_label$r,corrr2$un,type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
-
-
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-
-rm(
-  trees,
-  trees_lpp,
-  trees_ppp,
-  trees.diam,
-  Vancouver_linnet,
-  age,
-  date_1,
-  date_2
-)
 
 y1.rand <- lapply(y1.rand, as.ppp) #reduce space
 
@@ -443,21 +357,21 @@ mk_L_label <- mclapply(X=1:nsim,function(i){
 mk_L_label <- do.call(rbind,mk_L_label)
 
 
-mk_2d_label_NA <- mk_2d_label
 
-min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+
+min_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nrank])
+max_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_label <- data.frame(r=r,
                       min=min_2d_lab,max=max_2d_lab)
 
 
 
-mk_L_label_NA <- mk_L_label
 
 
-min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+
+min_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nrank])
+max_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
 
@@ -505,34 +419,6 @@ points(d_label$r,corrr2$un,type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
 
-par(mfrow=c(1,2)) ## put two plots together
-
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-
 rm(
   trees,
   trees_lpp,
@@ -548,269 +434,11 @@ y1.rand <- lapply(y1.rand, as.ppp) #reduce space
 
 save.image("AQUIFOLIUM.RData")
 
-
-#####################################################
-#####################################################
-##################################################### PENNSYLVANICUM
-#####################################################
-#####################################################
-
-
-# PENNSYLVANICUM <- species.ppps$PENNSYLVANICUM
-# marks(PENNSYLVANICUM) <- PENNSYLVANICUM$data$diameter
-# 
-# plot(Smooth(PENNSYLVANICUM,
-#             sigma=bw.scott.iso(PENNSYLVANICUM),
-#             distance="euclidean",
-#             positive=T,
-#             dimyx=512))
-# 
-# library(marklpp)
-# corrr2 <- markcorr(as.ppp(PENNSYLVANICUM),
-#                    correction = "none",
-#                    method = "density")
-# corrln <- markcorr.lpp(PENNSYLVANICUM,
-#                        ftype = "corr",
-#                        r=corrr2$r*1.25,
-#                        method = "density")
-# 
-# plot(corrr2,ylim = c(0,3.8))
-# points(corrr2$r,as.numeric(corrln),col="red",type="l")
-# 
-# nsim <- 199
-# nrank <- 5
-# y1.rand <- rlabel(PENNSYLVANICUM,nsim = nsim)
-# r <- corrr2$r
-# 
-# mk_2d_label <- mclapply(X=1:nsim,function(i){
-#   markcorr(as.ppp(y1.rand[[i]]),
-#            correction = "none",
-#            method = "density",
-#            normalise = TRUE,
-#            r=r
-#   )$un
-# },mc.cores = 8)
-# 
-# mk_2d_label <- do.call(rbind,mk_2d_label)
-# 
-# r_L <- r*1.25
-# mk_L_label <- mclapply(X=1:nsim,function(i){
-#   markcorr.lpp(y1.rand[[i]],
-#                ftype = "corr",
-#                normalise = TRUE,
-#                r=r_L,
-#                method = "density"
-#   )
-# },mc.cores = 8)
-# 
-# mk_L_label <- do.call(rbind,mk_L_label)
-# 
-# 
-# mk_2d_label_NA <- mk_2d_label
-# 
-# min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-# max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_label <- data.frame(r=r,
-#                       min=min_2d_lab,max=max_2d_lab)
-# 
-# 
-# 
-# mk_L_label_NA <- mk_L_label
-# 
-# 
-# min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-# max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
-# 
-# 
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# rm(
-#   trees,
-#   trees_lpp,
-#   trees_ppp,
-#   trees.diam,
-#   Vancouver_linnet,
-#   age,
-#   date_1,
-#   date_2
-# )
-# 
-# y1.rand <- lapply(y1.rand, as.ppp) #reduce space
-# 
-# save.image("PENNSYLVANICUM.RData")
-
-#####################################################
-#####################################################
-##################################################### SEQUOIADENDRON
-#####################################################
-#####################################################
-
-# d <- data.frame(name=names(genus.ppps),n=unlist(lapply(genus.ppps, npoints)))
-# rownames(d) <- NULL
-# d[order(d$n,decreasing = F),]
-# sd <- c()
-# for (i in 1:length(genus.ppps)) {
-#   sd[[i]] <- sd(genus.ppps[[i]]$data$diameter)
-# }
-# d <- cbind(d,unlist(sd))
-# d[order(d$`unlist(sd)`,decreasing = F),]
-# 
-# SEQUOIADENDRON <- genus.ppps$SEQUOIADENDRON
-# marks(SEQUOIADENDRON) <- SEQUOIADENDRON$data$diameter
-# 
-# plot(Smooth(SEQUOIADENDRON,
-#             sigma=bw.scott.iso(SEQUOIADENDRON),
-#             distance="euclidean",
-#             positive=T,
-#             dimyx=512))
-# 
-# library(marklpp)
-# corrr2 <- markcorr(as.ppp(SEQUOIADENDRON),
-#                    correction = "none",
-#                    method = "density")
-# corrln <- markcorr.lpp(SEQUOIADENDRON,
-#                        ftype = "corr",
-#                        r=corrr2$r*1.25,
-#                        method = "density")
-# 
-# plot(corrr2,ylim = c(0,3.8))
-# points(corrr2$r,as.numeric(corrln),col="red",type="l")
-# 
-# nsim <- 199
-# nrank <- 5
-# y1.rand <- rlabel(SEQUOIADENDRON,nsim = nsim)
-# r <- corrr2$r
-# 
-# mk_2d_label <- mclapply(X=1:nsim,function(i){
-#   markcorr(as.ppp(y1.rand[[i]]),
-#            correction = "none",
-#            method = "density",
-#            normalise = TRUE,
-#            r=r
-#   )$un
-# },mc.cores = 8)
-# 
-# mk_2d_label <- do.call(rbind,mk_2d_label)
-# 
-# r_L <- r*1.25
-# mk_L_label <- mclapply(X=1:nsim,function(i){
-#   markcorr.lpp(y1.rand[[i]],
-#                ftype = "corr",
-#                normalise = TRUE,
-#                r=r_L,
-#                method = "density"
-#   )
-# },mc.cores = 8)
-# 
-# mk_L_label <- do.call(rbind,mk_L_label)
-# 
-# 
-# mk_2d_label_NA <- mk_2d_label
-# 
-# min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-# max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_label <- data.frame(r=r,
-#                       min=min_2d_lab,max=max_2d_lab)
-# 
-# 
-# 
-# mk_L_label_NA <- mk_L_label
-# 
-# 
-# min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-# max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
-# 
-# 
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# rm(
-#   trees,
-#   trees_lpp,
-#   trees_ppp,
-#   trees.diam,
-#   Vancouver_linnet,
-#   age,
-#   date_1,
-#   date_2
-# )
-# 
-# y1.rand <- lapply(y1.rand, as.ppp) #reduce space
-# save.image("SEQUOIADENDRON.RData")
-
 #####################################################
 #####################################################
 ##################################################### POPULUS
 #####################################################
 #####################################################
-
-d <- data.frame(name=names(genus.ppps),n=unlist(lapply(genus.ppps, npoints)))
-rownames(d) <- NULL
-d[order(d$n,decreasing = F),]
-sd <- c()
-for (i in 1:length(genus.ppps)) {
-  sd[[i]] <- sd(genus.ppps[[i]]$data$diameter)
-}
-d <- cbind(d,unlist(sd))
-d[order(d$`unlist(sd)`,decreasing = F),]
-
 POPULUS <- genus.ppps$POPULUS
 marks(POPULUS) <- POPULUS$data$diameter
 
@@ -861,21 +489,21 @@ mk_L_label <- mclapply(X=1:nsim,function(i){
 mk_L_label <- do.call(rbind,mk_L_label)
 
 
-mk_2d_label_NA <- mk_2d_label
 
-min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+
+min_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nrank])
+max_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_label <- data.frame(r=r,
                       min=min_2d_lab,max=max_2d_lab)
 
 
 
-mk_L_label_NA <- mk_L_label
 
 
-min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+
+min_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nrank])
+max_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
 
@@ -923,34 +551,6 @@ points(d_label$r,corrr2$un,type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
 
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-
 rm(
   # trees,
   # trees_lpp,
@@ -966,408 +566,11 @@ rm(
 y1.rand <- lapply(y1.rand, as.ppp) #reduce space
 save.image("POPULUS.RData")
 
-
-#####################################################
-#####################################################
-##################################################### JUNIPERUS
-#####################################################
-#####################################################
-
-# d <- data.frame(name=names(genus.ppps),n=unlist(lapply(genus.ppps, npoints)))
-# rownames(d) <- NULL
-# d[order(d$n,decreasing = F),]
-# sd <- c()
-# for (i in 1:length(genus.ppps)) {
-#   sd[[i]] <- sd(genus.ppps[[i]]$data$diameter)
-# }
-# d <- cbind(d,unlist(sd))
-# d[order(d$`unlist(sd)`,decreasing = F),]
-# 
-# JUNIPERUS <- genus.ppps$JUNIPERUS
-# marks(JUNIPERUS) <- JUNIPERUS$data$diameter
-# 
-# plot(Smooth(JUNIPERUS,
-#             sigma=bw.scott.iso(JUNIPERUS),
-#             distance="euclidean",
-#             positive=T,
-#             dimyx=512))
-# 
-# library(marklpp)
-# corrr2 <- markcorr(as.ppp(JUNIPERUS),
-#                    correction = "none",
-#                    method = "density")
-# corrln <- markcorr.lpp(JUNIPERUS,
-#                        ftype = "corr",
-#                        r=corrr2$r*1.25,
-#                        method = "density")
-# 
-# plot(corrr2,ylim = c(0,3.8))
-# points(corrr2$r,as.numeric(corrln),col="red",type="l")
-# 
-# nsim <- 199
-# nrank <- 5
-# y1.rand <- rlabel(JUNIPERUS,nsim = nsim)
-# r <- corrr2$r
-# 
-# mk_2d_label <- mclapply(X=1:nsim,function(i){
-#   markcorr(as.ppp(y1.rand[[i]]),
-#            correction = "none",
-#            method = "density",
-#            normalise = TRUE,
-#            r=r
-#   )$un
-# },mc.cores = 8)
-# 
-# mk_2d_label <- do.call(rbind,mk_2d_label)
-# 
-# r_L <- r*1.25
-# mk_L_label <- mclapply(X=1:nsim,function(i){
-#   markcorr.lpp(y1.rand[[i]],
-#                ftype = "corr",
-#                normalise = TRUE,
-#                r=r_L,
-#                method = "density"
-#   )
-# },mc.cores = 8)
-# 
-# mk_L_label <- do.call(rbind,mk_L_label)
-# 
-# 
-# mk_2d_label_NA <- mk_2d_label
-# 
-# min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-# max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_label <- data.frame(r=r,
-#                       min=min_2d_lab,max=max_2d_lab)
-# 
-# 
-# 
-# mk_L_label_NA <- mk_L_label
-# 
-# 
-# min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-# max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
-# 
-# 
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# rm(
-#   # trees,
-#   # trees_lpp,
-#   # trees_ppp,
-#   # trees.diam,
-#   # Vancouver_linnet,
-#   # age,
-#   # date_1,
-#   # date_2
-#   genus.ppps
-# )
-# 
-# y1.rand <- lapply(y1.rand, as.ppp) #reduce space
-# save.image("JUNIPERUS.RData")
-
-#####################################################
-#####################################################
-##################################################### DAVIDIA
-#####################################################
-#####################################################
-
-# d <- data.frame(name=names(genus.ppps),n=unlist(lapply(genus.ppps, npoints)))
-# rownames(d) <- NULL
-# d[order(d$n,decreasing = F),]
-# sd <- c()
-# for (i in 1:length(genus.ppps)) {
-#   sd[[i]] <- sd(genus.ppps[[i]]$data$diameter)
-# }
-# d <- cbind(d,unlist(sd))
-# d[order(d$`unlist(sd)`,decreasing = F),]
-# 
-# DAVIDIA <- genus.ppps$DAVIDIA
-# marks(DAVIDIA) <- DAVIDIA$data$diameter
-# 
-# plot(Smooth(DAVIDIA,
-#             sigma=bw.scott.iso(DAVIDIA),
-#             distance="euclidean",
-#             positive=T,
-#             dimyx=512))
-# 
-# library(marklpp)
-# corrr2 <- markcorr(as.ppp(DAVIDIA),
-#                    correction = "none",
-#                    method = "density")
-# corrln <- markcorr.lpp(DAVIDIA,
-#                        ftype = "corr",
-#                        r=corrr2$r*1.25,
-#                        method = "density")
-# 
-# plot(corrr2,ylim = c(0,3.8))
-# points(corrr2$r,as.numeric(corrln),col="red",type="l")
-# 
-# nsim <- 199
-# nrank <- 5
-# y1.rand <- rlabel(DAVIDIA,nsim = nsim)
-# r <- corrr2$r
-# 
-# mk_2d_label <- mclapply(X=1:nsim,function(i){
-#   markcorr(as.ppp(y1.rand[[i]]),
-#            correction = "none",
-#            method = "density",
-#            normalise = TRUE,
-#            r=r
-#   )$un
-# },mc.cores = 8)
-# 
-# mk_2d_label <- do.call(rbind,mk_2d_label)
-# 
-# r_L <- r*1.25
-# mk_L_label <- mclapply(X=1:nsim,function(i){
-#   markcorr.lpp(y1.rand[[i]],
-#                ftype = "corr",
-#                normalise = TRUE,
-#                r=r_L,
-#                method = "density"
-#   )
-# },mc.cores = 8)
-# 
-# mk_L_label <- do.call(rbind,mk_L_label)
-# 
-# 
-# mk_2d_label_NA <- mk_2d_label
-# 
-# min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-# max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_label <- data.frame(r=r,
-#                       min=min_2d_lab,max=max_2d_lab)
-# 
-# 
-# 
-# mk_L_label_NA <- mk_L_label
-# 
-# 
-# min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-# max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
-# 
-# 
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# rm(
-#   # trees,
-#   # trees_lpp,
-#   # trees_ppp,
-#   # trees.diam,
-#   # Vancouver_linnet,
-#   # age,
-#   # date_1,
-#   # date_2
-#   genus.ppps
-# )
-# 
-# y1.rand <- lapply(y1.rand, as.ppp) #reduce space
-# save.image("DAVIDIA.RData")
-
-
-#####################################################
-#####################################################
-##################################################### DEGROOT
-#####################################################
-#####################################################
-
-# d <- data.frame(name=names(cultivar.ppps),n=unlist(lapply(cultivar.ppps, npoints)))
-# rownames(d) <- NULL
-# d[order(d$n,decreasing = F),]
-# sd <- c()
-# for (i in 1:length(cultivar.ppps)) {
-#   sd[[i]] <- sd(cultivar.ppps[[i]]$data$diameter)
-# }
-# d <- cbind(d,unlist(sd))
-# d[order(d$`unlist(sd)`,decreasing = F),]
-# 
-# DEGROOT <- cultivar.ppps$DEGROOT
-# marks(DEGROOT) <- DEGROOT$data$diameter
-# 
-# plot(Smooth(DEGROOT,
-#             sigma=bw.scott.iso(DEGROOT),
-#             distance="euclidean",
-#             positive=T,
-#             dimyx=512))
-# 
-# library(marklpp)
-# corrr2 <- markcorr(as.ppp(DEGROOT),
-#                    correction = "none",
-#                    method = "density")
-# corrln <- markcorr.lpp(DEGROOT,
-#                        ftype = "corr",
-#                        r=corrr2$r*1.25,
-#                        method = "density")
-# 
-# plot(corrr2,ylim = c(0,3.8))
-# points(corrr2$r,as.numeric(corrln),col="red",type="l")
-# 
-# nsim <- 199
-# nrank <- 5
-# y1.rand <- rlabel(DEGROOT,nsim = nsim)
-# r <- corrr2$r
-# 
-# mk_2d_label <- mclapply(X=1:nsim,function(i){
-#   markcorr(as.ppp(y1.rand[[i]]),
-#            correction = "none",
-#            method = "density",
-#            normalise = TRUE,
-#            r=r
-#   )$un
-# },mc.cores = 8)
-# 
-# mk_2d_label <- do.call(rbind,mk_2d_label)
-# 
-# r_L <- r*1.25
-# mk_L_label <- mclapply(X=1:nsim,function(i){
-#   markcorr.lpp(y1.rand[[i]],
-#                ftype = "corr",
-#                normalise = TRUE,
-#                r=r_L,
-#                method = "density"
-#   )
-# },mc.cores = 8)
-# 
-# mk_L_label <- do.call(rbind,mk_L_label)
-# 
-# 
-# mk_2d_label_NA <- mk_2d_label
-# 
-# min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-# max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_label <- data.frame(r=r,
-#                       min=min_2d_lab,max=max_2d_lab)
-# 
-# 
-# 
-# mk_L_label_NA <- mk_L_label
-# 
-# 
-# min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-# max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
-# 
-# d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
-# 
-# 
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# rm(
-#   # trees,
-#   # trees_lpp,
-#   # trees_ppp,
-#   # trees.diam,
-#   # Vancouver_linnet,
-#   # age,
-#   # date_1,
-#   # date_2
-#   cultivar.ppps
-# )
-# 
-# y1.rand <- lapply(y1.rand, as.ppp) #reduce space
-# save.image("DEGROOT.RData")
-
 #####################################################
 #####################################################
 ##################################################### ARNOLD
 #####################################################
 #####################################################
-
-d <- data.frame(name=names(cultivar.ppps),n=unlist(lapply(cultivar.ppps, npoints)))
-rownames(d) <- NULL
-d[order(d$n,decreasing = F),]
-sd <- c()
-for (i in 1:length(cultivar.ppps)) {
-  sd[[i]] <- sd(cultivar.ppps[[i]]$data$diameter)
-}
-d <- cbind(d,unlist(sd))
-d[order(d$`unlist(sd)`,decreasing = F),]
-
 ARNOLD <- cultivar.ppps$ARNOLD
 marks(ARNOLD) <- ARNOLD$data$diameter
 
@@ -1417,22 +620,18 @@ mk_L_label <- mclapply(X=1:nsim,function(i){
 
 mk_L_label <- do.call(rbind,mk_L_label)
 
-
-mk_2d_label_NA <- mk_2d_label
-
-min_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nrank])
-max_2d_lab <- apply(mk_2d_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+min_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nrank])
+max_2d_lab <- apply(mk_2d_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_label <- data.frame(r=r,
                       min=min_2d_lab,max=max_2d_lab)
 
 
 
-mk_L_label_NA <- mk_L_label
 
 
-min_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nrank])
-max_L_label <- apply(mk_L_label_NA, 2, function(x) (sort(x))[nsim-nrank+1])
+min_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nrank])
+max_L_label <- apply(mk_L_label, 2, function(x) (sort(x))[nsim-nrank+1])
 
 d_L_label <- data.frame(r=r_L,min=min_L_label,max=max_L_label)
 
@@ -1479,34 +678,6 @@ polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
 points(d_label$r,corrr2$un,type="l",lwd=3)
 abline(h=1,col="red",lty=2,lwd=3)
 dev.off()
-
-# par(mfrow=c(1,2)) ## put two plots together
-# 
-# plot(d_L_label$r,d_L_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="network"
-# )
-# points(d_L_label$r,d_L_label$min,type="l",col="white")
-# points(d_L_label$r,d_L_label$max,type="l",col="white")
-# polygon(c(d_L_label$r, rev(d_L_label$r)), c(d_L_label$max, rev(d_L_label$min)),
-#         col = "grey70", border = NA)
-# points(d_L_label$r,corrln,type="l")
-# abline(h=1,col="red",lty=2)
-# 
-# plot(d_label$r,d_label$min,
-#      type = "n",xlab = "r",
-#      ylab=expression(italic(k[mm](r))),
-#      ylim = c(0.5,2),
-#      main="2D"
-# )
-# points(d_label$r,d_label$min,type="l",col="white")
-# points(d_label$r,d_label$max,type="l",col="white")
-# polygon(c(d_label$r, rev(d_label$r)), c(d_label$max, rev(d_label$min)),
-#         col = "grey70", border = NA)
-# points(d_label$r,corrr2$un,type="l")
-# abline(h=1,col="red",lty=2)
 
 rm(
   # trees,

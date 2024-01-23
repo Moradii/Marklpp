@@ -1,10 +1,3 @@
-plot(unmark(BIGNONIOIDES),cols="red",main="",pch=20)
-plot(unmark(ARNOLD),cols="blue",add = T,pch=20)
-plot(unmark(INVOLUCRATA),cols="gold",add = T,pch=20)
-plot(unmark(AQUIFOLIUM),cols="green",add = T,pch=20)
-plot(unmark(POPULUS),cols="orange",add = T,pch=20)
-
-
 X.all <- superimpose(BIGNONIOIDES,
                      ARNOLD,
                      INVOLUCRATA,
@@ -17,6 +10,7 @@ marks(ARNOLD) <- rep("Arnold",npoints(ARNOLD))
 marks(INVOLUCRATA) <- rep("Involucrata",npoints(INVOLUCRATA))
 marks(AQUIFOLIUM) <- rep("Aquifolium",npoints(AQUIFOLIUM))
 marks(POPULUS) <- rep("Populus",npoints(POPULUS))
+
 X <- superimpose(
   BIGNONIOIDES,
   ARNOLD,
@@ -24,8 +18,6 @@ X <- superimpose(
   AQUIFOLIUM,
   POPULUS
 )
-
-save(X,file = "all5.RData")
 
 library(circlize)
 cc <- colorRamp2(
