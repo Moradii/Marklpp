@@ -41,7 +41,7 @@ Mark correlation function for point patterns over a linear network
  markcorr.lpp(X,r=r,ftype = "corr",f=function(m1,m2){m1*m2})
 }
 \references{
-Eckardt, M., and Moradi, M. (2023) Marked point processes on linear networks.
+Eckardt, M., and Moradi, M. (2024) Marked spatial point processes: current state and extensions to point processes on linear networks
 }
 \author{
 Mehdi Moradi \email{m2.moradi@yahoo.com} and Matthias Eckardt

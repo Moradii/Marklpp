@@ -15,7 +15,7 @@
 #'  marks(X) <- runif(npoints(X),10,11)
 #'  markcorr.lpp(X,r=r,ftype = "corr",f=function(m1,m2){m1*m2})
 
-#' @references Eckardt, M., and Moradi, M. (2023) Marked point processes on linear networks.
+#' @references Eckardt, M., and Moradi, M. (2024) Marked spatial point processes: current state and extensions to point processes on linear networks
 #' @return a data.frame which gives the empirical mark correlation function and the distance vector r where the mark correlation finction is evaluated.
 #' @author Mehdi Moradi \email{m2.moradi@yahoo.com} and Matthias Eckardt
 
