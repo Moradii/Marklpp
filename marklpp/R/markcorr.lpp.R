@@ -8,7 +8,7 @@
 #' @param r Optional. Numeric vector. The values of the argument r at which the mark correlation function should be evaluated.
 #' @param normalise If normalise=FALSE, compute only the numerator of the expression for the mark correlation.
 #' @param f  Optional. Test function f used in the definition of the mark correlation function. An R function with at least two arguments. There is a sensible default.
-#' @param ftype type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","schlather","equ","Beisbart"
+#' @param ftype type of test function used in argument f. Currently any selection of the options "corr","vario","rcorr","shimanti","equ","Beisbart". If ftype is "shimanti", keep the default for f.
 #' @param method type of smoothing, either density or loess.
 #' @examples
 #'  X <- rpoislpp(10,simplenet)
@@ -16,7 +16,7 @@
 #'  markcorr.lpp(X,r=r,ftype = "corr",f=function(m1,m2){m1*m2})
 
 #' @references Eckardt, M., and Moradi, M. (2024) Marked spatial point processes: current state and extensions to point processes on linear networks
-#' @return a data.frame which gives the empirical mark correlation function and the distance vector r where the mark correlation finction is evaluated.
+#' @return a data.frame which gives the empirical mark correlation function and the distance vector r where the mark correlation function is evaluated.
 #' @author Mehdi Moradi \email{m2.moradi@yahoo.com} and Matthias Eckardt
 
 
@@ -26,7 +26,7 @@
 
 
 markcorr.lpp <- function(X,r=NULL,normalise=TRUE,f = function(m1, m2) {m1 * m2},
-                         ftype=c("corr","vario","rcorr","schlather","equ","Beisbart"),
+                         ftype=c("corr","vario","rcorr","shimanti","equ","Beisbart"),
                          method=c("density","loess"),
                          ...){
   n <- npoints(X)
@@ -46,7 +46,7 @@ markcorr.lpp <- function(X,r=NULL,normalise=TRUE,f = function(m1, m2) {m1 * m2},
   m1 <- m[df.filter[,2]]
   m2 <- m[df.filter[,3]]
 
-  if(ftype=="schlather"){
+  if(ftype=="shimanti"){
     m1 <- m1 - mean(m)
     m2 <- m2 - mean(m)
   }
@@ -77,7 +77,7 @@ markcorr.lpp <- function(X,r=NULL,normalise=TRUE,f = function(m1, m2) {m1 * m2},
       out <- Eff/var(m)
     }else if(ftype=="rcorr"){
       out <- Eff/mean(m)
-    }else if(ftype=="schlather"){
+    }else if(ftype=="shimanti"){
       out <- Eff/var(m)
     }else if(ftype=="equ"){
       tb <- table(m)
