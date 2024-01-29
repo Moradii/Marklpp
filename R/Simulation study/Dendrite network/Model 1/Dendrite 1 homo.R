@@ -73,7 +73,7 @@ mk_L_for_sims <- mclapply(X=1:nsim,function(i){
                normalise = TRUE,
                r=r_L,
                method = "density"
-  )
+  )[,1]
 },mc.cores = 8)
 
 mk_L_for_sims <- do.call(rbind,mk_L_for_sims)
@@ -204,7 +204,7 @@ mk_L_label <- mclapply(X=1:nsim,function(i){
                normalise = TRUE,
                r=r_L,
                method = "density"
-  )
+  )[,1]
 },mc.cores = 8)
 
 mk_L_label <- do.call(rbind,mk_L_label)
