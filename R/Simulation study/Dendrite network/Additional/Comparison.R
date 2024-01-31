@@ -185,7 +185,7 @@ plot(d_L_Bei$r,d_L_Bei$min,
      cex.axis=4, las=3,
      main=""
 )
-title(ylab=expression(italic(I[mm]^paste(Bei,",",L)*(r[L]))),
+title(ylab=expression(italic(kappa[mm]^paste(Bei,",",L)*(r[L]))),
       line=6,cex.lab=5)
 title(xlab = expression(italic(r[L])),
       line=10,cex.lab=5)
